@@ -1,0 +1,387 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>access</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Courier New', monospace;
+            background: #000;
+            color: #fff;
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            overflow: hidden;
+        }
+
+        .grain {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-image: 
+                radial-gradient(circle, transparent 1px, rgba(255,255,255,0.02) 1px);
+            background-size: 4px 4px;
+            pointer-events: none;
+            animation: grain 8s steps(10) infinite;
+        }
+
+        @keyframes grain {
+            0%, 100% { transform: translate(0, 0) }
+            10% { transform: translate(-5%, -10%) }
+            20% { transform: translate(-15%, 5%) }
+            30% { transform: translate(7%, -25%) }
+            40% { transform: translate(-5%, 25%) }
+            50% { transform: translate(-15%, 10%) }
+            60% { transform: translate(15%, 0%) }
+            70% { transform: translate(0%, 15%) }
+            80% { transform: translate(3%, 35%) }
+            90% { transform: translate(-10%, 10%) }
+        }
+
+        .container {
+            display: flex;
+            height: 100vh;
+            width: 100vw;
+        }
+
+        .door {
+            flex: 1;
+            position: relative;
+            cursor: pointer;
+            transition: all 0.8s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+            border-right: 1px solid rgba(255,255,255,0.1);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: linear-gradient(45deg, transparent 49%, rgba(255,255,255,0.03) 50%, transparent 51%);
+        }
+
+        .door:last-child {
+            border-right: none;
+        }
+
+        .door:hover {
+            background: rgba(255,255,255,0.05);
+            transform: scale(1.02);
+        }
+
+        .door:hover .door-content {
+            transform: translateY(-10px);
+        }
+
+        .door-content {
+            text-align: center;
+            transition: transform 0.4s ease;
+            position: relative;
+            z-index: 2;
+        }
+
+        .door-title {
+            font-size: 4rem;
+            font-weight: 100;
+            letter-spacing: 8px;
+            margin-bottom: 2rem;
+            text-transform: lowercase;
+            position: relative;
+        }
+
+        .door-title::after {
+            content: '';
+            position: absolute;
+            bottom: -10px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 0;
+            height: 1px;
+            background: #fff;
+            transition: width 0.6s ease;
+        }
+
+        .door:hover .door-title::after {
+            width: 100%;
+        }
+
+        .door-subtitle {
+            font-size: 0.9rem;
+            opacity: 0.6;
+            letter-spacing: 2px;
+            font-weight: 300;
+        }
+
+        .access-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.95);
+            display: none;
+            align-items: center;
+            justify-content: center;
+            z-index: 1000;
+            backdrop-filter: blur(5px);
+        }
+
+        .access-overlay.active {
+            display: flex;
+            animation: fadeIn 0.3s ease;
+        }
+
+        .access-box {
+            background: #000;
+            border: 1px solid rgba(255,255,255,0.2);
+            padding: 3rem;
+            text-align: center;
+            min-width: 400px;
+            position: relative;
+        }
+
+        .access-title {
+            font-size: 1.5rem;
+            margin-bottom: 2rem;
+            font-weight: 100;
+            letter-spacing: 3px;
+        }
+
+        .code-input {
+            width: 100%;
+            background: transparent;
+            border: none;
+            border-bottom: 1px solid rgba(255,255,255,0.3);
+            color: #fff;
+            font-family: 'Courier New', monospace;
+            font-size: 1.2rem;
+            padding: 1rem 0;
+            text-align: center;
+            letter-spacing: 4px;
+            margin-bottom: 2rem;
+            outline: none;
+        }
+
+        .code-input:focus {
+            border-bottom-color: #fff;
+        }
+
+        .access-btn {
+            background: transparent;
+            border: 1px solid rgba(255,255,255,0.3);
+            color: #fff;
+            padding: 1rem 2rem;
+            font-family: 'Courier New', monospace;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            letter-spacing: 2px;
+            margin-right: 1rem;
+        }
+
+        .access-btn:hover {
+            background: rgba(255,255,255,0.1);
+            border-color: #fff;
+        }
+
+        .error-msg {
+            color: #fff;
+            margin-top: 1rem;
+            font-size: 0.8rem;
+            opacity: 0.7;
+        }
+
+        .protected-area {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: #000;
+            z-index: 2000;
+            padding: 2rem;
+            overflow-y: auto;
+        }
+
+        .protected-area.active {
+            display: block;
+            animation: slideIn 0.5s ease;
+        }
+
+        @keyframes slideIn {
+            from { opacity: 0; transform: translateX(100px); }
+            to { opacity: 1; transform: translateX(0); }
+        }
+
+        .protected-content {
+            max-width: 800px;
+            margin: 0 auto;
+            padding-top: 4rem;
+        }
+
+        .protected-title {
+            font-size: 2rem;
+            margin-bottom: 2rem;
+            font-weight: 100;
+            letter-spacing: 4px;
+        }
+
+        .logout-btn {
+            position: fixed;
+            top: 2rem;
+            right: 2rem;
+            background: transparent;
+            border: 1px solid rgba(255,255,255,0.2);
+            color: #fff;
+            padding: 0.5rem 1rem;
+            font-family: 'Courier New', monospace;
+            cursor: pointer;
+            font-size: 0.8rem;
+        }
+
+        .close-btn {
+            position: absolute;
+            top: 1rem;
+            right: 1rem;
+            background: none;
+            border: none;
+            color: rgba(255,255,255,0.5);
+            font-size: 1.5rem;
+            cursor: pointer;
+        }
+
+        @media (max-width: 768px) {
+            .door-title {
+                font-size: 2.5rem;
+                letter-spacing: 4px;
+            }
+            
+            .access-box {
+                min-width: 300px;
+                padding: 2rem;
+            }
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+    </style>
+</head>
+<body>
+    <div class="grain"></div>
+    
+    <div class="container">
+        <div class="door" onclick="showAccess('team')">
+            <div class="door-content">
+                <div class="door-title">team</div>
+                <div class="door-subtitle">internal access</div>
+            </div>
+        </div>
+        
+        <div class="door" onclick="showAccess('thrive')">
+            <div class="door-content">
+                <div class="door-title">thrive</div>
+                <div class="door-subtitle">member portal</div>
+            </div>
+        </div>
+    </div>
+
+    <div class="access-overlay" id="accessOverlay">
+        <div class="access-box">
+            <button class="close-btn" onclick="closeAccess()">&times;</button>
+            <div class="access-title" id="accessTitle">enter code</div>
+            <input type="text" class="code-input" id="codeInput" placeholder="_ _ _ _ _ _" maxlength="10">
+            <div>
+                <button class="access-btn" onclick="validateCode()">enter</button>
+                <button class="access-btn" onclick="closeAccess()">cancel</button>
+            </div>
+            <div class="error-msg" id="errorMsg"></div>
+        </div>
+    </div>
+
+    <div class="protected-area" id="teamArea">
+        <button class="logout-btn" onclick="logout()">exit</button>
+        <div class="protected-content">
+            <div class="protected-title">team access granted</div>
+            <p>text</p>
+        </div>
+    </div>
+
+    <div class="protected-area" id="thriveArea">
+        <button class="logout-btn" onclick="logout()">exit</button>
+        <div class="protected-content">
+            <div class="protected-title">welcome to thrive</div>
+            <p>text</p>
+        </div>
+    </div>
+
+    <script>
+        const CODES = {
+            team: 'INSIDE',
+            thrive: 'ASCEND'
+        };
+
+        let currentDoor = null;
+
+        function showAccess(door) {
+            currentDoor = door;
+            document.getElementById('accessTitle').textContent = door + ' access';
+            document.getElementById('accessOverlay').classList.add('active');
+            document.getElementById('codeInput').focus();
+            clearError();
+        }
+
+        function closeAccess() {
+            document.getElementById('accessOverlay').classList.remove('active');
+            document.getElementById('codeInput').value = '';
+            clearError();
+            currentDoor = null;
+        }
+
+        function validateCode() {
+            const input = document.getElementById('codeInput').value.toUpperCase();
+            
+            if (input === CODES[currentDoor]) {
+                closeAccess();
+                document.getElementById(currentDoor + 'Area').classList.add('active');
+            } else {
+                showError('access denied');
+                document.getElementById('codeInput').value = '';
+            }
+        }
+
+        function logout() {
+            document.querySelectorAll('.protected-area').forEach(area => {
+                area.classList.remove('active');
+            });
+        }
+
+        function showError(msg) {
+            document.getElementById('errorMsg').textContent = msg;
+        }
+
+        function clearError() {
+            document.getElementById('errorMsg').textContent = '';
+        }
+
+        document.getElementById('codeInput').addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') {
+                validateCode();
+            }
+        });
+
+        // ambient sound?
+        // setInterval(() => { 
+        //     if (Math.random() < 0.1) console.log('...'); 
+        // }, 30000);
+      
+    </script>
+</body>
+</html>
