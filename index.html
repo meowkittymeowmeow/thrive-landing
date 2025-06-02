@@ -257,14 +257,72 @@
         }
 
         @media (max-width: 768px) {
+            .container {
+                flex-direction: column;
+            }
+            
+            .door {
+                border-right: none;
+                border-bottom: 1px solid rgba(255,255,255,0.1);
+            }
+            
+            .door:last-child {
+                border-bottom: none;
+            }
+            
             .door-title {
                 font-size: 2.5rem;
                 letter-spacing: 4px;
             }
             
             .access-box {
-                min-width: 300px;
-                padding: 2rem;
+                min-width: 90vw;
+                max-width: 350px;
+                padding: 2rem 1.5rem;
+                margin: 1rem;
+            }
+            
+            .protected-content {
+                padding-top: 6rem;
+                padding-left: 1rem;
+                padding-right: 1rem;
+            }
+            
+            .logout-btn {
+                top: 1rem;
+                right: 1rem;
+                padding: 0.75rem 1rem;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .door-title {
+                font-size: 2rem;
+                letter-spacing: 2px;
+            }
+            
+            .door-subtitle {
+                font-size: 0.8rem;
+                letter-spacing: 1px;
+            }
+            
+            .access-box {
+                min-width: 95vw;
+                padding: 1.5rem 1rem;
+            }
+            
+            .code-input {
+                font-size: 1rem;
+                letter-spacing: 2px;
+            }
+            
+            .access-btn {
+                padding: 0.75rem 1.5rem;
+                font-size: 0.9rem;
+                margin-bottom: 0.5rem;
+                display: block;
+                width: 100%;
+                margin-right: 0;
             }
         }
 
@@ -310,7 +368,7 @@
         <button class="logout-btn" onclick="logout()">exit</button>
         <div class="protected-content">
             <div class="protected-title">team access granted</div>
-            <p>text</p>
+            <p>access confirmed</p>
         </div>
     </div>
 
@@ -318,14 +376,14 @@
         <button class="logout-btn" onclick="logout()">exit</button>
         <div class="protected-content">
             <div class="protected-title">welcome to thrive</div>
-            <p>text</p>
+            <p>access confirmed</p>
         </div>
     </div>
 
     <script>
         const CODES = {
-            team: 'INSIDE',
-            thrive: 'ASCEND'
+            team: 'TEAM',
+            thrive: 'THRIVE'
         };
 
         let currentDoor = null;
@@ -381,7 +439,7 @@
         // setInterval(() => { 
         //     if (Math.random() < 0.1) console.log('...'); 
         // }, 30000);
-      
+        
     </script>
 </body>
 </html>
